@@ -347,6 +347,7 @@ appropriately upon receiving the event indicating a context change (e.g. a `clos
 also choose to leave a case in which they are participating at any point in time.
 
 Operations enabling applications to participate in a shared case session are:
+
 * [join case](#join-case-request)
 * [leave case](#leave-case-request)
 * [update case](#update-case)
