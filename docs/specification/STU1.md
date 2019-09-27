@@ -350,7 +350,7 @@ operation. A change or closing of a contextual subject in which content resource
 It should be noted that *content* and *context* are distinct concepts. A *context* is a circumstance on which multiple
 desktop applications agree to synchronize.  *Content* is information which multiple applications agree to share inside of a
 given *context*.  While most interactions are the same between *contextual* subjects and their contained *content*, there are some
-differences in assocated operations and a few additional responsibilities are required of the Hub. Additionally, a given Hub may
+differences in associated operations and a few additional responsibilities are required of the Hub. Additionally, a given Hub may
 or may not support the sharing of structured information. If a Hub does not support sharing of structured information requesting
 applications should expect and handle the standard not implemented HTTP error status (501 - Not Implemented) when requesting
 one of the structured information sharing operations be performed.
@@ -542,7 +542,7 @@ Code | Meaning
 `restrict.update` | No application other than the application that added the resource to the case may update any content of the resource
 `restrict.removal`| No application other than the application that added the resource to the case may remove the resource from the case
 
-If a resource does not contain a value in the `source` attribute of the resource's meta attribute then any protection level is included
+If a resource does not contain a value in the `source` attribute of the resource's meta attribute, then any protection level is included
 in the resource is disregarded.
 
 ##### Response Update Content Parameters
@@ -1008,7 +1008,7 @@ In order to support the sharing of structured information a Hub must support the
   5. Ensure the structural validity of FHIR resources
   6. Ensure that a specific `client.id` in any request uses the same token as when a given `client.id` was first encountered
 
-A Hub is not responsible for any long term persistance of shared information and should purge the content when the containing contextual
+A Hub is not responsible for any long-term persistence of shared information and should purge the content when the containing contextual
 subject is closed.
 
 ## Event Notification Errors
