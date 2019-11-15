@@ -37,6 +37,9 @@ Operations enabling applications to participate sharing structured information a
 
 Responsibilities of a Hub supporting structured information sharing is provided [below](#hub-responsibilities-to-support-sharing-of-structured-information).
 
+### Example Use Case
+A frequent scenario which illustrates a usage of content sharing involves an image reading application, a reporting application, and an advanced quantification application.  The imaging reading and reporting applications may be active subscribers to a FHIRcast topic.  They would commonly react to a setting or change of the FHIRcast topic's context.  Inside of this context (e.g. an imaging study) they exchange structured information (i.e. content), while the user is interacting with one or the other application, using the `update content` request.  At some point the imaging application (automatically or through user interaction) may determine that an advanced quantification application should be used and launch the application including the appropriate FHIRcast topic.  The advanced quantification application may determine it would like to retrieve any content available in the current FHIRcast context by using the `get current content` request as well as contributing content using the `update content` request.  Finally, the user may select a measurement in the reporting application which could then use the `set active resource` request to which the imaging application responds by navigating to the image on which the measurement was acquired.
+
 ### Update Content Request
 A subscriber may request to add, remove, or change one or more FHIR resources to the content of a context container with an HTTP
 POST to the `hub.topic` url. The Hub SHALL either acknowledge that the request was honored successfully by returning a success
@@ -233,30 +236,32 @@ Code | Meaning | Condition
 401 | Unauthorized | The application was not granted an authorization scope required to add, update, or remove the resource type of one of the FHIR resources in the request
 403	| Forbidden	| Update or removal of one of the resources in the request is not permitted by any application except the creator of the resource (see [resource protection levels](#resource-protection-levels))
 404	| Not Found	| One of the FHIR resources which is requested to be updated or removed was not found
-406 | Not Acceptable | One of the FHIR resources which is requested to be added has an id of a resource already present
+409 | Conflict | One of the FHIR resources which is requested to be added has an id of a resource already present
 410 | Gone | The containing context resource (`container.id`) provided in the request was not found
 412 | Precondition Failed | The application is not subscribed to the `hub.topic`
 422 | Unprocessable Entity | One of the FHIR resources in the request was structurally malformed
 428 | Precondition Required | The `content.timestamp` in the submitted request is not the current timestamp of the content held by the Hub
 5xx | *per code* | Appropriate status code if a server error occurs
 
-###### Request Update Content Failure - Response
+###### Request Update Content Failure - Operational Outome Response Recommendations
 If the update content request fails, the Hub MAY respond with a [FHIR Operation Outcome resource](http://www.hl7.org/fhir/operationoutcome.html)
 in addition to returning the appropriate HTTP error status code.  The operation outcome `severity` SHALL be 'error' while
 the following `code` and `details` values are recommended:
 
 HTTP Status | Code | Details
---- | --- | --- | ---
+--- | --- | ---
 400 | structure | MSG_BAD_SYNTAX 
 401 | forbidden | MSG_AUTH_REQUIRED
 403 | lock-error | MSG_RESOURCE_NOT_ALLOWED
 404 | not-found | MSG_NO_EXIST
-406 | duplicate | MSG_DUPLICATE_ID
+409 | duplicate | MSG_DUPLICATE_ID
 410 | not-found | MSG_NO_EXIST
 412 | unknown | MSG_AUTH_REQUIRED
 422 | structure |  MSG_CANT_PARSE_CONTENT
 428 | conflict | MSG_VERSION_AWARE_CONFLICT
 5xx | transient | *not applicable*
+
+In order to assist the requestor in identifying the cause of the request's failure, it is highly recommended that in the case of an update content failure with the error status of 403, 404, or 409 that an operation outcome resource be returned containing the id(s) of resources which caused the request to fail.  The id(s) should be contained in OperationOutcome.issue.expression.
 
 ##### Update Content Event
 If the update content request succeeds, the Hub SHALL send the following event to all other subscribers. The Hub SHALL NOT send this event
@@ -570,7 +575,7 @@ in addition to returning the appropriate HTTP error status code.  The operation 
 the following `code` and `details` values are recommended:
 
 HTTP Status | Code | Details
---- | --- | --- | ---
+--- | --- | ---
 400 | structure | MSG_BAD_SYNTAX
 401 | forbidden | MSG_AUTH_REQUIRED
 410 | not-found | MSG_NO_EXIST
@@ -638,7 +643,7 @@ in addition to returning the appropriate HTTP error status code.  The operation 
 the following `code` and `details` values are recommended:
 
 HTTP Status | Code | Details
---- | --- | --- | ---
+--- | --- | ---
 400 | structure | MSG_BAD_SYNTAX
 401 | forbidden | MSG_AUTH_REQUIRED
 404 | not-found | MSG_NO_EXIST
