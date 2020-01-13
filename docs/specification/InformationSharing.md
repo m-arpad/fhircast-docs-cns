@@ -402,9 +402,9 @@ Field | Optionality | Type | Description
 ```
 
 * `entry.request.method` type of operation the user performed on the resource
-    * PUT = User created the Resource
+    * POST = User created the Resource
     * DELETE = User deleted the Resource
-    * POST = User updated the Resource
+    * PUT = User updated the Resource
 * `entry.request.resource` the *complete* resource object for PUT and POST operations or the resource object including the resource id for DELETE operations
 
 ### Get Current Content Request
