@@ -426,6 +426,23 @@ GET https://hub.example.com/7jaa86kgdudewiaq0wtu?container.id=43c6d969-23d3-4c9b
 Host: hub
 Authorization: Bearer i8hweunweunweofiwweoijewiwe
 Content-Type: application/json
+
+POST https://hub.example.com/7jaa86kgdudewiaq0wtu HTTP/1.1
+Host: hub
+Authorization: Bearer i8hweunweunweofiwweoijewiwe
+Content-Type: application/json
+
+{
+  "timestamp": "2019-08-23T20:59:58.34",
+  "id": "3b3164a8-827e-4d22-8915-7d21c9c8215b",
+  "event": {
+    "hub.topic": "https://hub.example.com/7jaa86kgdudewiaq0wtu",
+    "hub.event": "get-current-content",
+    "container.id": "43c6d969-23d3-4c9b-a5d2-0a1e0960ead5",
+    "content.timestamp": "2019-08-23T21:05:22.59",
+    "client.id": "app_example_client_id",
+  }
+}
 ```
 ###### Get Current Content Example Response
 ```
@@ -654,6 +671,35 @@ Field | Optionality | Type | Description
 `container.id` | Required | string | Resource id of the contextual subject in which this content resides
 `content.timestamp` | Required | string | Timestamp provided by the Hub when it last updated content
 `activeResourceIds` | Required | array | Zero or more FHIR resource id's that should be noted as active, if the `activeResourceIds` array is empty then the requesting application is noting that nothing is selected
+
+###### Set Active Resource Example Request
+
+```
+GET https://hub.example.com/7jaa86kgdudewiaq0wtu?container.id=43c6d969-23d3-4c9b-a5d2-0a1e0960ead5 HTTP/1.1
+Host: hub
+Authorization: Bearer i8hweunweunweofiwweoijewiwe
+Content-Type: application/json
+
+POST https://hub.example.com/7jaa86kgdudewiaq0wtu HTTP/1.1
+Host: hub
+Authorization: Bearer i8hweunweunweofiwweoijewiwe
+Content-Type: application/json
+
+{
+  "timestamp": "2019-09-21T21:38:28.54",
+  "id": "27a7869a-f228-4805-9aae-b059fb06a69f",
+  "event": {
+    "hub.topic": "https://hub.example.com/7jaa86kgdudewiaq0wtu",
+    "hub.event": "get-current-content",
+    "container.id": "43c6d969-23d3-4c9b-a5d2-0a1e0960ead5",
+    "content.timestamp": "2019-08-23T21:05:22.59",
+    "activeResourceIds": [
+      "2c2af397-bf38-4c8d-90b8-9421ed5e747b",
+      "df2ed31f-0b92-4bc6-ad4e-fb1ea7d6e7cb"
+    ]
+  }
+}
+```
 
 ### Hub Responsibilities to Support Sharing of Structured Information
 In order to support the sharing of structured information a Hub must support the following responsibilities:
