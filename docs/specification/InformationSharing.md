@@ -611,7 +611,7 @@ Field | Optionality | Type | Description
 Field | Optionality | Type | Description
 --- | --- | --- | ---
 `hub.topic` | Required | string | The topic session URI given in the subscription request.
-`hub.event` | Required | string | `set-active-resource-request`<br>The event that triggered this request from the subscriber, taken from the list of events from the subscription request.
+`hub.event` | Required | string | `set-active-resource`<br>The event that triggered this request from the subscriber, taken from the list of events from the subscription request.
 `container.id` | Required | string | Resource id of the contextual subject in which this content resides
 `content.timestamp` | Required | string | Timestamp provided by the Hub when it last updated content
 `activeResourceIds` | Required | array | Zero or more FHIR resource id's that should be noted as active, if the `activeResourceIds` array is empty then the requesting application is noting that nothing is selected
@@ -690,7 +690,7 @@ Content-Type: application/json
   "id": "27a7869a-f228-4805-9aae-b059fb06a69f",
   "event": {
     "hub.topic": "https://hub.example.com/7jaa86kgdudewiaq0wtu",
-    "hub.event": "get-current-content",
+    "hub.event": "set-active-resource",
     "container.id": "43c6d969-23d3-4c9b-a5d2-0a1e0960ead5",
     "content.timestamp": "2019-08-23T21:05:22.59",
     "activeResourceIds": [
