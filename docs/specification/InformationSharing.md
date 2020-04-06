@@ -62,7 +62,7 @@ Field | Optionality | Type | Description
 `container.id` | Required | string | Resource id of the contextual subject in which this content resides
 `content.timestamp` | Required | string | ISO 8601-2 timestamp in UTC provided by the Hub when it last updated content
 `client.id` | Optional | uri | Identifies the client in a non-variant manner that enables information provided by a client to be determined through multiple open and close cycles.  Only a single subscriber with a given client.id may join a session. 
-`content` | Required | Bundle |  A [FHIR Bundle resource](http://www.hl7.org/fhir/bundle.html) containing the requested content changes.  The Hub SHALL only accept FHIR resources that are authorized to be accessed with the existing OAuth2 `access_token`.
+`content` | Required | array |  A single [FHIR Bundle resource](http://www.hl7.org/fhir/bundle.html) containing the requested content changes.  The Hub SHALL only accept FHIR resources that are authorized to be accessed with the existing OAuth2 `access_token`.
 
 ###### Request Update Content Example
 ```
@@ -195,15 +195,13 @@ Content-Type: application/json
 }
 ```
 
-The Bundle Resource holds a list of 1 to n resources which are requested to be added (POST), removed (DELETE) or changed (PUT) in the
-content as specified in the request/method attribute of each resource in the bundle.
+The Bundle Resource holds a list of 1 to n resources which are requested to be added (POST), removed (DELETE) or changed (PUT) in the content as specified in the request/method attribute of each resource in the bundle.
 
 Each resource MAY contain the `client.id` to the source attribute of the resource’s meta attribute.  In the above example, both
 observation resources specify a client id.
 
 ###### Resource Protection Levels
-In the tag attribute of a resource’s meta attribute an application MAY specify one or more protection levels for the resource.  In
-the above example, the head circumference observation resource contains an update restriction while the bone density
+In the tag attribute of a resource’s meta attribute an application MAY specify one or more protection levels for the resource.  In the above example, the head circumference observation resource contains an update restriction while the bone density
 observation resource does not specify any protection level.  The following protection levels are available in the
 http://fhircast.org/exchange/protection code set:
 
@@ -274,7 +272,7 @@ Field | Optionality | Type | Description
 `hub.event` | Required | string | `update-content`<br>The event that triggered this request from the subscriber, taken from the list of events from the subscription request.
 `container.id` | Required | string | Resource id of the contextual subject in which this content resides
 `content.timestamp` | Required | string | ISO 8601-2 timestamp in UTC provided by the Hub when it performed the content update
-`content` | Required | Bundle | A [FHIR Bundle resource](http://www.hl7.org/fhir/bundle.html) containing the requested content changes.
+`content` | Required | array | A single [FHIR Bundle resource](http://www.hl7.org/fhir/bundle.html) containing the requested content changes.
 
 ###### Update Content Notification Event Example
 ```
@@ -408,11 +406,7 @@ Field | Optionality | Type | Description
 * `entry.request.resource` the *complete* resource object for PUT and POST operations or the resource object including the resource id for DELETE operations
 
 ### Get Current Content Request
-A subscribing application may request the current content of a context container with an HTTP GET to the `hub.topic` url.  The client
-queries the case by the Hub's `hub.topic` url with the `container.id` as a parameter.  Note that no `hub.event` is present in the
-response.  If the query is successful the Hub shall respond by returning a success HTTP status (200 - OK), HTTP status (204 - No Content),
-or returning an [HTTP error status](#get-current-content-request-failure) if the request was not successful.  The subscriber SHALL be able to appropriately handle
-a failed request.
+A subscribing application may request the current content of a context container with an HTTP GET to the `hub.topic` url.  The client queries the case by the Hub's `hub.topic` url with the `container.id` as a parameter.  Note that no `hub.event` is present in the response.  If the query is successful the Hub shall respond by returning a success HTTP status (200 - OK), HTTP status (204 - No Content), or returning an [HTTP error status](#get-current-content-request-failure) if the request was not successful.  The subscriber SHALL be able to appropriately handle a failed request.
 
 ##### Response Get Current Content Parameters
 Upon successful completion of the request the Hub SHALL return the following response in addition to returning the HTTP 200 OK status.
@@ -423,7 +417,7 @@ Field | Optionality | Type | Description
 `hub.event` | Required | string | `get-current-content`<br><br>The event that triggered this request from the subscriber.
 `container.id` | Required | string | Resource id of the contextual subject in which this content resides
 `content.timestamp` | Required | string | Timestamp provided by the Hub when it last updated content
-`content` | Required | array | Resources which are present in the containing contextual subject
+`content` | Required | array | A single [FHIR Bundle resource](http://www.hl7.org/fhir/bundle.html) containing the resources which are present in the containing contextual subject
 
 ###### Get Current Content Example Request
 
@@ -583,35 +577,27 @@ HTTP Status | Code | Details
 5xx | transient | *not applicable*
 
 ### Set Active Resource Request
-A subscriber may request a resource be noted as being active with an HTTP POST to the `hub.topic` url.  The Hub SHALL either acknowledge
-that the request was honored successfully by returning a success HTTP status (200 - OK) or returning
-an [HTTP error status](#set-active-resource-request-failure) if the request was not successful. Support of this operation by a Hub is
-optional even for Hub's wishing to support the sharing of structured information.  If a Hub does not support the set active resource
-operation then it would return the standard not implemented HTTP error status (501 - Not Implemented) if the operation is requested. The
-subscriber SHALL be able to appropriately handle a failed set active resource request.
+A subscriber may request a resource be noted as being active with an HTTP POST to the `hub.topic` url.  The Hub SHALL either acknowledge that the request was honored successfully by returning a success HTTP status (200 - OK) or returning
+an [HTTP error status](#set-active-resource-request-failure) if the request was not successful. Support of this operation by a Hub is optional even for Hubs wishing to support the sharing of structured information.  If a Hub does not support the set active resource operation then it would return the standard not implemented HTTP error status (501 - Not Implemented) if the operation is requested. The subscriber SHALL be able to appropriately handle a failed set active resource request.
 
 Noting a resource as active allows applications to react to a user’s selection of structured information in another application.
-Hence an application may want to set (or clear) an active resource with others reacting to the selection if appropriate.  For example,
-a reporting system may indicate that the user has selected a particular observation with a measurement value and an imaging application
-which created the measurement may wish to change its user display such that the image from which the measurement was acquired is visible.
-If a resource is noted as active, this indicates that any other resource which was active is no longer active (i.e. there is an implicit
-inactive).
+Hence an application may want to set (or clear) an active resource with others reacting to the selection if appropriate.  For example, a reporting system may indicate that the user has selected a particular observation with a measurement value and an imaging application which created the measurement may wish to change its user display such that the image from which the measurement was acquired is visible. If a resource is noted as active, this indicates that any other resource which was active is no longer active (i.e. an implicit set inactive).
 
 ###### Set Active Resource Parameters
 Field | Optionality | Type | Description
 --- | --- | --- | ---
 `timestamp` | Required | *string* | ISO 8601-2 timestamp in UTC describing the time at which the event occurred with subsecond accuracy. 
 `id` | Required | *string* | Event identifier used to recognize retried notifications. This id SHALL be uniquely generated by the subscriber and could be a GUID.
-`event` | Required | *object* | A json object describing the event. See [below](#set-active-resource-in-case-event-object-parameters).
+`event` | Required | *object* | A json object describing the event. See [below](#set-active-resource-event-object-parameters).
 
 ###### Set Active Resource Event Object Parameters
 Field | Optionality | Type | Description
 --- | --- | --- | ---
 `hub.topic` | Required | string | The topic session URI given in the subscription request.
-`hub.event` | Required | string | `remove-resource-from-case`<br>The event that triggered this request from the subscriber, taken from the list of events from the subscription request.
+`hub.event` | Required | string | `set-active-resource-request`<br>The event that triggered this request from the subscriber, taken from the list of events from the subscription request.
 `container.id` | Required | string | Resource id of the contextual subject in which this content resides
 `content.timestamp` | Required | string | Timestamp provided by the Hub when it last updated content
-`resource.id` | Required | string | FHIR resource id that should be noted as active, if `resource.id` is an empty string then the requesting application is noting that nothing is selected
+`activeResourceIds` | Required | array | Zero or more FHIR resource id's that should be noted as active, if the `activeResourceIds` array is empty then the requesting application is noting that nothing is selected
 
 ##### Response Set Active Resource Parameters
 Upon successful completion of the request the Hub SHALL return the following response in addition to returning the HTTP 200 status.
@@ -619,7 +605,7 @@ Upon successful completion of the request the Hub SHALL return the following res
 Field | Optionality | Type | Description
 --- | --- | --- | ---
 `id` | Required | string | Event identifier which was uniquely generated by the requesting subscriber.
-`hub.event` | Required | string | `set-active-resource-in-case`<br><br>The event that triggered this request from the subscriber.
+`hub.event` | Required | string | `set-active-resource`<br><br>The event that triggered this request from the subscriber.
 `content.timestamp` | Required | string | Timestamp generated by the Hub when it changed the selected resource based on this request.  This timestamp is used to ensure subsequent request from any subscriber is using the current version of the content.
 
 ##### Set Active Resource Request Failure
@@ -638,9 +624,7 @@ Code | Meaning | Condition
 5xx | *per code* | Appropriate status code if a server error occurs
 
 ###### Request Set Active Resource Failure - Response
-If the set active resource request fails, the Hub MAY respond with a [FHIR Operation Outcome resource](http://www.hl7.org/fhir/operationoutcome.html)
-in addition to returning the appropriate HTTP error status code.  The operation outcome `severity` SHALL be 'error' while
-the following `code` and `details` values are recommended:
+If the set active resource request fails, the Hub MAY respond with a [FHIR Operation Outcome resource](http://www.hl7.org/fhir/operationoutcome.html) in addition to returning the appropriate HTTP error status code.  The operation outcome `severity` SHALL be error' while the following `code` and `details` values are recommended:
 
 HTTP Status | Code | Details
 --- | --- | ---
@@ -666,10 +650,10 @@ Field | Optionality | Type | Description
 Field | Optionality | Type | Description
 --- | --- | --- | ---
 `hub.topic` | Required | string | The topic session URI given in the subscription request.
-`hub.event` | Required | string | `remove-resource-from-case`<br>The event that triggered this request from the subscriber, taken from the list of events from the subscription request.
+`hub.event` | Required | string | `set-active-resource-request`<br>The event that triggered this request from the subscriber, taken from the list of events from the subscription request.
 `container.id` | Required | string | Resource id of the contextual subject in which this content resides
 `content.timestamp` | Required | string | Timestamp provided by the Hub when it last updated content
-`resource.id` | Required | string | FHIR resource id that should be noted as active, if `resource.id` is an empty string then no resource is active
+`activeResourceIds` | Required | array | Zero or more FHIR resource id's that should be noted as active, if the `activeResourceIds` array is empty then the requesting application is noting that nothing is selected
 
 ### Hub Responsibilities to Support Sharing of Structured Information
 In order to support the sharing of structured information a Hub must support the following responsibilities:
@@ -680,6 +664,5 @@ In order to support the sharing of structured information a Hub must support the
   5. Ensure the structural validity of FHIR resources
   6. Ensure that a specific `client.id` in any request uses the same token as when a given `client.id` was first encountered
 
-A Hub is not responsible for any long-term persistence of shared information and should purge the content when the containing contextual
-subject is closed.
+A Hub is not responsible for any long-term persistence of shared information and should purge the content when the containing contextual subject is closed.
 
